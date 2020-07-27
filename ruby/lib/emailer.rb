@@ -9,6 +9,8 @@ class Emailer
         message = <<MESSAGE_END
 From: #{from_name} <#{from_address}>
 To: #{to_name} <#{to_address}>
+MIME-Version: 1.0
+Content-type: text/html
 Subject: #{subject}
 
 #{body}

@@ -12,21 +12,21 @@ Thread.new do
     mut.synchronize do
       unless new_domains.empty?
         domains = []
-        body = ""
+        body = "<table><thead><tr><th>Domain</th><th>Query</th></tr></thead><tbody>"
         new_domains.each do |domain|
           if domain['msg'] =~ /New domain observed: ([^ ]+) from query (.*)$/
             domain = $1
-            query = $1
-            body += "#{domain}\t#{query}"
+            query = $2
+            body += "<tr><td>#{domain}</td><td>#{query}</td></tr>"
           else
             body += domain['msg'] + "\n"
           end
         end
   
-        body += "\n"
+        body += "</tbody></table>\n"
   
         new_domains.each do |domain|
-          body += JSON.pretty_unparse(domain) + "\n------------------------------\n"
+          body += "<pre>" + JSON.pretty_unparse(domain) + "</pre><hr />"
         end
         emailer.send_alert_email("New Domains Observed (#{new_domains.length} domains)", body, "zeek@raptormail.net", "Zeek", "rvictory@raptormail.net", "Ryan Victory")
       end

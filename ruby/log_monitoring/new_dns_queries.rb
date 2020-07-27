@@ -5,7 +5,7 @@ mut = Mutex.new
 new_domains = []
 
 emailer = Emailer.new("inbound-smtp.us-east-1.amazonaws.com")
-TIME_BETWEEN_EMAILS = 600
+TIME_BETWEEN_EMAILS = 1800 # Every half hour
 
 Thread.new do 
   loop do

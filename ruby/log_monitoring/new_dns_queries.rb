@@ -8,24 +8,26 @@ emailer = Emailer.new("inbound-smtp.us-east-1.amazonaws.com")
 TIME_BETWEEN_EMAILS = 600
 
 Thread.new do 
-  mut.synchronize do
-    unless new_domains.empty?
-      domains = []
-      body = ""
-      new_domains.each do |domain|
-        body += domain['msg'] + "\n"
+  loop do
+    mut.synchronize do
+      unless new_domains.empty?
+        domains = []
+        body = ""
+        new_domains.each do |domain|
+          body += domain['msg'] + "\n"
+        end
+  
+        body += "\n"
+  
+        new_domains.each do |domain|
+          body += JSON.pretty_unparse(domain) + "\n------------------------------\n"
+        end
+        emailer.send_alert_email("New Domains Observed (#{new_domains.length} domains)", body, "zeek@raptormail.net", "Zeek", "rvictory@raptormail.net", "Ryan Victory")
       end
-
-      body += "\n"
-
-      new_domains.each do |domain|
-        body += JSON.pretty_unparse(domain) + "\n------------------------------\n"
-      end
-      emailer.send_alert_email("New Domains Observed (#{new_domains.length} domains)", body, "zeek@raptormail.net", "Zeek", "rvictory@raptormail.net", "Ryan Victory")
+      new_domains = []
     end
-    new_domains = []
+    sleep TIME_BETWEEN_EMAILS
   end
-  sleep TIME_BETWEEN_EMAILS
 end
 
 

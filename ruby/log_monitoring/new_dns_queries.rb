@@ -15,9 +15,9 @@ Thread.new do
         body = "<table border=\"1\"><thead><tr><th>Domain</th><th>Query</th></tr></thead><tbody>"
         new_domains.each do |domain|
           if domain['msg'] =~ /New domain observed: ([^ ]+) from query ([^ ]+)/
-            domain = $1.to_s.gsub(".", "[.]")
-            query = domain['msg'].split("from query ").last #$2.to_s.gsub(".", "[.]")
-            body += "<tr><td>#{domain}</td><td>#{query}</td></tr>"
+            domain_name = $1.to_s.gsub(".", "[.]")
+            query = $2.to_s.gsub(".", "[.]")
+            body += "<tr><td>#{domain_name}</td><td>#{query}</td></tr>"
           else
             body += domain['msg'] + "\n"
           end

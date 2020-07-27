@@ -12,11 +12,11 @@ Thread.new do
     mut.synchronize do
       unless new_domains.empty?
         domains = []
-        body = "<table><thead><tr><th>Domain</th><th>Query</th></tr></thead><tbody>"
+        body = "<table border="1"><thead><tr><th>Domain</th><th>Query</th></tr></thead><tbody>"
         new_domains.each do |domain|
           if domain['msg'] =~ /New domain observed: ([^ ]+) from query (.*)$/
-            domain = $1
-            query = $2
+            domain = $1.gsub(".", "[.]")
+            query = $2.gsub(".", "[.]")
             body += "<tr><td>#{domain}</td><td>#{query}</td></tr>"
           else
             body += domain['msg'] + "\n"

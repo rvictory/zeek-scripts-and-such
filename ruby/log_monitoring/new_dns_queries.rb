@@ -14,7 +14,13 @@ Thread.new do
         domains = []
         body = ""
         new_domains.each do |domain|
-          body += domain['msg'] + "\n"
+          if domain['msg'] =~ /New domain observed: ([^ ]+) from query (.*)$/
+            domain = $1
+            query = $1
+            body += "#{domain}\t#{query}"
+          else
+            body += domain['msg'] + "\n"
+          end
         end
   
         body += "\n"

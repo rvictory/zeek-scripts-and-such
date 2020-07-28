@@ -12,12 +12,12 @@ Thread.new do
     mut.synchronize do
       unless new_domains.empty?
         domains = []
-        body = "<table border=\"1\"><thead><tr><th>Domain</th><th>Query</th></tr></thead><tbody>"
+        body = "<table border=\"1\"><thead><tr><th>Domain</th><th>Query</th><th>Queried By</th></tr></thead><tbody>"
         new_domains.each do |domain|
           if domain['msg'] =~ /New domain observed: ([^ ]+) from query ([^ ]+)/
             domain_name = $1.to_s.gsub(".", "[.]")
             query = domain['msg'].split("from query ").last.gsub(".", "[.]") #$2.to_s.gsub(".", "[.]")
-            body += "<tr><td>#{domain_name}</td><td>#{query}</td></tr>"
+            body += "<tr><td>#{domain_name}</td><td>#{query}</td><td>#{domain['host_name']}</td></tr>"
           else
             body += domain['msg'] + "\n"
           end
@@ -44,7 +44,23 @@ STDIN.each_line do |line|
     next
   end
   next unless data["note"] == "DNSMonitor::DNS_New_FQDN"
-  puts "Queued #{data['msg']}"
+  # Try to grab the name of the system from the current day's dhcp logs
+  source_ip = data["id.orig_h"]
+  system_name = "<unknown>"
+  current_dhcp_entry = `grep '#{source_ip} /data/corelight/spool/logger/dhcp.log | head -1`
+  if current_dhcp_entry.length < 1
+    log_day = data["ts"].split("T").first
+    current_dhcp_entry = `grep '#{source_ip} /data/corelight/logs/#{log_day}/dhcp*.log | head -1`
+  end
+
+  if current_dhcp_entry.length > 1
+    dhcp_entry = JSON.parse(current_dhcp_entry)
+    system_name = dhcp_entry["host_name"].to_s
+  end
+
+  data["host_name"] = "#{source_ip} <#{system_name}>"
+
+  puts "Queued #{data['msg']} from source host #{system_name}"
   mut.synchronize do
     new_domains.push(data)
   end

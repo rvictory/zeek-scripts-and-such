@@ -47,10 +47,10 @@ STDIN.each_line do |line|
   # Try to grab the name of the system from the current day's dhcp logs
   source_ip = data["id.orig_h"]
   system_name = "<unknown>"
-  current_dhcp_entry = `grep '#{source_ip}' /data/corelight/spool/logger/dhcp.log | head -1`
+  current_dhcp_entry = `grep -h '#{source_ip}' /data/corelight/spool/logger/dhcp.log | head -1`
   if current_dhcp_entry.length < 1
     log_day = data["ts"].split("T").first
-    current_dhcp_entry = `grep '#{source_ip}' /data/corelight/logs/#{log_day}/dhcp*.log | head -1`
+    current_dhcp_entry = `grep -h '#{source_ip}' /data/corelight/logs/#{log_day}/dhcp*.log | head -1`
   end
 
   if current_dhcp_entry.length > 1

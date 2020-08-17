@@ -5,7 +5,7 @@ require "aws-sdk-kinesis"
 
 AWS_REGION = ENV['AWS_REGION'] || "us-east-2"
 FIREHOSE_STREAM_NAME = ENV['FIREHOSE_STREAM']
-BATCH_SIZE = ENV['BATCH_SIZE'].nil? ? 5 || ENV['BATCH_SIZE'].to_i
+BATCH_SIZE = ENV['BATCH_SIZE'].nil? ? 5 : ENV['BATCH_SIZE'].to_i
 
 firehose_client = Aws::Kinesis::Client.new(
     region: AWS_REGION

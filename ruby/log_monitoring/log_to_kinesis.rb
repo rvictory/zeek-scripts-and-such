@@ -18,12 +18,10 @@ STDIN.each_line do |line|
     batch.push(line.chomp)
     if batch.length == BATCH_SIZE
         begin
-            params = {
-                records: batch.map {|x| {data: x, partition_key: "PartitionKey", stream_name: FIREHOSE_STREAM_NAME} },
+            resp = client.put_records({
+                records: batch.map {|x| {data: x, partition_key: "PartitionKey"} },
                 stream_name: FIREHOSE_STREAM_NAME
-            }
-            puts params.inspect
-            resp = firehose_client.put_records(params)
+            })
             puts "Wrote batch"
             if resp.failed_record_count > 0
                 puts "Failed record count was greater than 0"

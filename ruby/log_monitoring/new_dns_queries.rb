@@ -44,6 +44,7 @@ STDIN.each_line do |line|
     next
   end
   next unless data["note"] == "DNSMonitor::DNS_New_FQDN"
+  next if data["id.orig_h"] == "192.168.3.143"
   # Try to grab the name of the system from the current day's dhcp logs
   source_ip = data["id.orig_h"]
   system_name = "<unknown>"

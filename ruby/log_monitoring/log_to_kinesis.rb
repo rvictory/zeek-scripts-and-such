@@ -19,7 +19,7 @@ STDIN.each_line do |line|
     if batch.length == BATCH_SIZE
         begin
             resp = firehose_client.put_records({
-                records: batch.map {|x| {data: x, partition_key: "PartitionKey"} },
+                records: batch.map {|x| {data: x, partition_key: "PartitionKey", stream_name: FIREHOSE_STREAM_NAME} },
                 stream_name: FIREHOSE_STREAM_NAME
             })
             puts "Wrote batch"

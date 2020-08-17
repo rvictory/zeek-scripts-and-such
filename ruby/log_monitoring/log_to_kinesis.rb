@@ -22,6 +22,7 @@ STDIN.each_line do |line|
                 records: batch.map {|x| {data: x, partition_key: "PartitionKey"} }
                 stream_name: FIREHOSE_STREAM_NAME
             })
+            puts "Wrote batch"
             if resp.failed_record_count > 0
                 puts "Failed record count was greater than 0"
             end 

@@ -12,6 +12,7 @@ Thread.new do
     mut.synchronize do
       unless new_domains.empty?
         domains = []
+        new_domains.uniq! {|x| x["msg"]}
         body = "<table border=\"1\"><thead><tr><th>Domain</th><th>Query</th><th>Source IP</th><th>Source Name</th></tr></thead><tbody>"
         new_domains.each do |domain|
           if domain['msg'] =~ /New domain observed: ([^ ]+) from query ([^ ]+)/

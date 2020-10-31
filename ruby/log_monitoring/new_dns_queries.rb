@@ -99,7 +99,7 @@ STDIN.each_line do |line|
 
   data["host_name"] = system_name
 
-  if data["note"] == "DNSMonitor::DNS_New_FQDN"
+  if data["note"] == "DNSMonitor::DNS_New_Domain"
     next if data["id.orig_h"] == "192.168.3.143"
     puts "Queued #{data['msg']} from source host #{system_name}"
     mut.synchronize do

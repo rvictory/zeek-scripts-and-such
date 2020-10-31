@@ -6,6 +6,15 @@ new_domains = []
 new_user_agents = []
 new_connections = []
 
+host_mappings = {}
+
+if File.exists?("~/host_mappings.tsv")
+  IO.read("~/host_mappings.tsv").split("\n").each do |line|
+    parts = line.chomp.split("\t")
+    host_mappings[parts[0]] = parts[1]
+  end
+end
+
 emailer = Emailer.new("inbound-smtp.us-east-1.amazonaws.com")
 TIME_BETWEEN_EMAILS = ENV['EMAIL_INTERVAL'].nil? ? 3600 : ENV['EMAIL_INTERVAL'].to_i 
 
@@ -85,7 +94,7 @@ STDIN.each_line do |line|
 
   # Try to grab the name of the system from the current day's dhcp logs
   source_ip = data["id.orig_h"]
-  system_name = "<unknown>"
+  system_name = host_mappings[source_ip] || "<unknown>"
   current_dhcp_entry = `grep -h '#{source_ip}' /data/corelight/spool/logger/dhcp.log | head -1`
   if current_dhcp_entry.length < 1
     log_day = data["ts"].split("T").first

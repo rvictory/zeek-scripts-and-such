@@ -5,6 +5,7 @@ mut = Mutex.new
 new_domains = []
 new_user_agents = []
 new_connections = []
+new_devices = []
 
 host_mappings = {}
 
@@ -58,6 +59,20 @@ Thread.new do
         body += "</tbody></table>\n"
       end
 
+      unless new_devices.empty?
+        body += "<h2>New Devices</h2><table border=\"1\"><thead><tr><th>MAC</th><th>DHCP Host Name</th><th>Discovered Host Name</th></tr></thead><tbody>"
+        new_devices.each do |new_device|
+          if new_device['msg'] =~ /New Device: (.+) with name (.+)/
+            mac = $1.to_s
+            host = $2.to_s
+            body += "<tr><td>#{mac}</td><td>#{host}</td><td>#{new_device['host_name']}</td></tr>"
+          else
+            body += new_device['msg'] + "\n"
+          end
+        end
+        body += "</tbody></table>\n"
+      end
+
       unless new_connections.empty?
         body += "<h2>New Connection Pairs</h2><table border=\"1\"><thead><tr><th>Orig_h</th><th>Resp_h</th><th>Resp_p</th><th>Source Name</th></tr></thead><tbody>"
         new_connections.each do |connection|
@@ -79,6 +94,7 @@ Thread.new do
       new_domains = []
       new_user_agents = []
       new_connections = []
+      new_devices = []
     end
     sleep TIME_BETWEEN_EMAILS
   end
@@ -123,6 +139,11 @@ STDIN.each_line do |line|
     puts "Queued #{data['msg']} from source host #{system_name}"
     mut.synchronize do
       new_user_agents.push(data)
+    end
+  elsif data["note"] == "NewDeviceMonitor::NewDevice"
+    puts "Queued #{data['msg']} from source host #{system_name}"
+    mut.synchronize do
+      new_devices.push(data)
     end
   end
 end

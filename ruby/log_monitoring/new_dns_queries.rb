@@ -110,16 +110,20 @@ STDIN.each_line do |line|
 
   # Try to grab the name of the system from the current day's dhcp logs
   source_ip = data["id.orig_h"]
-  system_name = host_mappings[source_ip] || "<unknown>"
-  current_dhcp_entry = `grep -h '#{source_ip}' /data/corelight/spool/logger/dhcp.log | head -1`
-  if current_dhcp_entry.length < 1
-    log_day = data["ts"].split("T").first
-    current_dhcp_entry = `grep -h '#{source_ip}' /data/corelight/logs/#{log_day}/dhcp*.log | head -1`
-  end
 
-  if current_dhcp_entry.length > 1
-    dhcp_entry = JSON.parse(current_dhcp_entry)
-    system_name = dhcp_entry["host_name"].to_s
+  system_name = data["dhcp_host_name"] || host_mappings[source_ip] || "<unknown>"
+
+  if system_name == "<unknown>"
+    current_dhcp_entry = `grep -h '#{source_ip}' /data/corelight/spool/logger/dhcp.log | head -1`
+    if current_dhcp_entry.length < 1
+      log_day = data["ts"].split("T").first
+      current_dhcp_entry = `grep -h '#{source_ip}' /data/corelight/logs/#{log_day}/dhcp*.log | head -1`
+    end
+
+    if current_dhcp_entry.length > 1
+      dhcp_entry = JSON.parse(current_dhcp_entry)
+      system_name = dhcp_entry["host_name"].to_s
+    end
   end
 
   data["host_name"] = system_name

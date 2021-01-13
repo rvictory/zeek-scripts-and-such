@@ -1,4 +1,5 @@
 require "io"
+require "compress/gzip"
 
 def random_ip
     "#{rand(255) + 1}.#{rand(255) + 1}.#{rand(255) + 1}.#{rand(255) + 1}"
@@ -46,29 +47,30 @@ def has_seen?(ip, file)
 end
 
 filename = "ip_db.bin"
-f = IO::Memory.new(1)
+#f = IO::Memory.new(1)
 num_bytes = 536870912
 if !File.exists?(filename)
     puts "Building an empty database"
-    #File.open(filename, "wb") do |f|
-        num_bytes.times do
-            f.write_byte 0
-        end
-    #end
+    output_io = File.open(filename, "wb")
+    #output_file = Compress::Gzip::Writer.new(output_io)
+    num_bytes.times do
+        output_io.write_byte 0
+    end
+    #output_file.close
+    output_io.close
+end
+output_io = File.open(filename, "r+")
+#output_file = Compress::Gzip::Writer.new(output_io)
+
+puts "Observing IPs"
+ARGF.each_line do |line|
+    next if line[0] == '#'
+    parts = line.split("\t")
+    next if parts[2].includes?(":")
+    observe(parts[2], output_io)
+    next if parts[4].includes?(":")
+    observe(parts[4], output_io)
 end
 
-num_writes = 1000000
-puts "Benchmarking #{num_writes} reads"
-begin_time = Time.utc.to_unix_f
-#File.open(filename, "r+") do |f|
-    num_writes.times do 
-        ip = random_ip
-        #puts "Observing #{ip}"
-        observe(ip, f)
-        #has_seen?(ip, f)
-    end
-#end
-end_time = Time.utc.to_unix_f
-time_taken = end_time - begin_time
-puts "Took #{time_taken} seconds to read #{num_writes} IPs"
-puts "That's #{num_writes / time_taken} reads per second"
+#output_file.close
+output_io.close
